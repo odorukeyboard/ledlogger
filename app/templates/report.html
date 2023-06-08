@@ -1,0 +1,30 @@
+{% extends 'layout.html' %} {% block content %}
+<div id="reportbro"></div>
+<script type="text/javascript">
+
+  function saveReport() {
+      const report = rb.getReport();
+
+      // console.log(JSON.stringify(report));
+      axios.put('{{ url_for('report.save', report_type='led_report') }}', {
+          report: report
+        }).then(function (response) {
+              // report definition saved successfully,
+              // set modified flag to false to disable save button
+              rb.setModified(false);
+          })
+          .catch(function (error) {
+              alert('saving report failed');
+          })
+  }
+
+  const report = {{ report_definition|safe }};
+  const rb = new ReportBro(document.getElementById('reportbro'), {
+      reportServerUrl: "{{ url_for('report.run') }}",
+      saveCallback: saveReport,
+  });
+  if (report) {
+      rb.load(report);
+  }
+</script>
+{% endblock %}

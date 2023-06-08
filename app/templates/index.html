@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no"
+    />
+
+    <!-- 합쳐지고 최소화된 최신 CSS -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap.min.css"
+    />
+
+    <!-- 부가적인 테마 -->
+    <link
+      rel="stylesheet"
+      href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/css/bootstrap-theme.min.css"
+    />
+
+    <!-- 합쳐지고 최소화된 최신 자바스크립트 -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.2/js/bootstrap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.1/chart.min.js"></script>
+
+    <!-- ReportBro Desiner -->
+    <link
+      href="{{ url_for('static', filename='reportbro/reportbro.css',  version='3.2.0') }}"
+      rel="stylesheet"
+      type="text/css"
+    />
+    <script src="{{ url_for('static', filename='reportbro/reportbro.js',  version='3.2.0') }}"></script>
+    <script src="{{ url_for('static', filename='js/axios.min.js', version='1.0.0') }}"></script>
+    <script src="{{ url_for('static', filename='js/knockout-3.5.1.min.js') }}"></script>
+
+    <link
+      href="{{ url_for('static', filename='css/styles.css',  version='1.0.0') }}"
+      rel="stylesheet"
+      type="text/css"
+    />
+  </head>
+  <body>
+    <div class="container">
+      {% include "nav.html" %} {% include "vol_cur_view.html" %}
+
+      <form action="/search" method="post">
+        <input type="date" name="startTime" />
+        <input type="date" name="endTime" />
+        <button type="submit">찾기</button>
+      </form>
+
+      <form action="/print" method="post">{% include "head.html" %}</form>
+    </div>
+  </body>
+</html>

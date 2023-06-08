@@ -1,0 +1,105 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="mainContent">
+  <div class="formContainer">
+    <div data-bind="with: album">
+      <div>
+        <input
+          data-bind="value: name"
+          id="album_name"
+          placeholder="{{ gettext('album.name') }}"
+          type="text"
+          maxlength="100"
+        />
+      </div>
+      <div>
+        <input
+          data-bind="value: artist"
+          id="album_artist"
+          placeholder="{{ gettext('album.artist') }}"
+          type="text"
+          maxlength="100"
+        />
+      </div>
+      <div>
+        <input
+          data-bind="value: year"
+          id="album_year"
+          type="number"
+          placeholder="{{ gettext('album.year') }}"
+          maxlength="4"
+        />
+      </div>
+      <div>
+        <input
+          data-bind="checked: best_of_compilation"
+          id="album_best_of_compilation"
+          type="checkbox"
+        />
+        <label for="album_best_of_compilation"
+          >{{ gettext('album.best_of_compilation') }}</label
+        >
+      </div>
+    </div>
+    <div class="buttonPane">
+      <a href="{{ url_for('led.index') }}">{{ gettext('common.cancel') }}</a>
+      <button data-bind="click: save">{{ gettext('common.save') }}</button>
+    </div>
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  function Album(data) {
+      const self = this;
+      self.id = data.id;
+      self.name = ko.observable(data.name);
+      self.artist = ko.observable(data.artist);
+      self.year = ko.observable(data.year);
+      self.best_of_compilation = ko.observable(data.best_of_compilation);
+  }
+
+  function LedState(data) {
+      const self = this;
+      self.id = data.id;
+      self.date = ko.observable(data.date);
+      self.state = ko.observable(data.state);
+  }
+
+  function AlbumViewModel() {
+      const self = this;
+
+      self.album = new Album({{ album|safe }});
+
+      self.save = function() {
+          // remove possible errors from previous validation
+          const elInputs = document.getElementsByTagName('input');
+          for (const elInput of elInputs) {
+              elInput.classList.remove('error');
+          }
+
+          axios.post('{{ url_for('led.save') }}',
+              ko.toJS({ album: self.album }),
+              ).then(function (response) {
+                  const data = response.data
+                  if (data.errors.length === 0) {
+                      window.location = '{{ url_for('led.index') }}';
+                  } else {
+                      // highlight input fields with validation error
+                      for (let i=0; i < data.errors.length; i++) {
+                        document.getElementById('album_' + data.errors[i].field).classList.add('error')
+                      }
+                  }
+              })
+              .catch(function (error) {
+                  alert('{{ gettext('common.saving failed') }}');
+              });
+      };
+  }
+
+  const albumViewModel = new AlbumViewModel();
+
+  document.addEventListener("DOMContentLoaded", function(event) {
+      ko.applyBindings(albumViewModel);
+  });
+</script>
+{% endblock %}

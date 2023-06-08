@@ -1,0 +1,112 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="sideMenu">
+  <a href="{{ url_for('led.edit') }}">
+    <span>데이터 추가</span>
+    <span class="icon-plus"></span>
+  </a>
+  <!--
+  <a
+    data-bind="attr: { href: '{{ url_for('led.report') }}?year=' + year() }"
+    target="_blank"
+  >
+    <span>{{ gettext('album.pdf report') }}</span>
+    <span class="icon-download"></span>
+  </a>
+  -->
+</div>
+<h3 class="text-center">조회 기간</h3>
+<div class="row">
+  <div class="col-sm-6 text-center row">
+    
+      <h4 style="display: inline;">시작</h4>
+      <input
+        type="datetime-local"
+        name="startTime"
+        data-bind="textInput: startTime"
+      />
+  </div>
+  <div class="col-sm-6 text-center row">
+      <h4 style="display: inline;">종료</h4>
+      <input
+        type="datetime-local"
+        name="endTime"
+        data-bind="textInput: endTime"
+      />
+  </div>
+</div>
+
+  <div class="mainContent">
+    <table>
+      <thead>
+        <tr>
+          <th>번호</th>
+          <th>상태</th>
+          <th style="text-align: center">날짜</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- ko foreach: albums -->
+        <tr>
+          <td>
+            <div data-bind="text: id"></div>
+          </td>
+          <td>
+            <div data-bind="text: state"></div>
+          </td>
+          <td>
+            <div data-bind="text: date"></div>
+          </td>
+        </tr>
+        <!-- /ko -->
+      </tbody>
+    </table>
+  </div>
+  <div class="filterContainer">
+    <!--
+    <input
+      data-bind="textInput: year"
+      id="album_year"
+      placeholder="{{ gettext('album.filter by year') }}"
+      type="number"
+      maxlength="4"
+    />
+    -->
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  function AlbumsViewModel() {
+      const self = this;
+      self.albums = ko.observableArray({{ leds|safe }});
+      self.startTime = ko.observable('');
+      self.endTime = ko.observable('');
+      self.startTime.subscribe(function(newVal) {
+          self.filterChanged();
+      });
+      self.endTime.subscribe(function(newVal) {
+          self.filterChanged();
+      });
+
+      self.filterChanged = function() {
+          axios.get('{{ url_for('led.data') }}?startTime='  + self.startTime() + '&endTime=' + self.endTime()
+              ).then(function (response) {
+                  console.log(response);
+                  const data = response.data
+                  self.albums(data);
+              })
+              .catch(function (error) {
+                  if (!error.response || error.response.status !== 0) {
+                      alert('{{ gettext('common.retrieving data failed') }}');
+                  }
+              });
+      };
+  }
+
+  const albumsViewModel = new AlbumsViewModel();
+  console.log(albumsViewModel);
+  document.addEventListener("DOMContentLoaded", function(event) {
+      ko.applyBindings(albumsViewModel);
+  });
+</script>
+{% endblock %}

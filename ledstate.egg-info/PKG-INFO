@@ -1,0 +1,10 @@
+Metadata-Version: 2.1
+Name: ledstate
+Version: 0.0.1
+Summary: Led state App for Flask
+Home-page: 
+Maintainer: 
+Maintainer-email: 
+License: MIT
+Requires-Python: >=3.5
+Description-Content-Type: text/x-rst

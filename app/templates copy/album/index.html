@@ -1,0 +1,95 @@
+{% extends 'layout.html' %} {% block content %}
+<div class="sideMenu">
+  <a href="{{ url_for('led.edit') }}">
+    <span>{{ gettext('album.add') }}</span>
+    <span class="icon-plus"></span>
+  </a>
+  <a
+    data-bind="attr: { href: '{{ url_for('led.report') }}?year=' + year() }"
+    target="_blank"
+  >
+    <span>{{ gettext('album.pdf report') }}</span>
+    <span class="icon-download"></span>
+  </a>
+</div>
+
+<div class="mainContent">
+  <div class="listContainer">
+    <table>
+      <thead>
+        <tr>
+          <th>{{ gettext('album.name') }}</th>
+          <th>{{ gettext('album.artist') }}</th>
+          <th style="width: 60px">{{ gettext('album.year') }}</th>
+          <th style="width: 60px">
+            {{ gettext('album.best_of_compilation') }}
+          </th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- ko foreach: albums -->
+        <tr>
+          <td>
+            <a
+              data-bind="text: name, attr: { href: '{{ url_for('led.edit') }}/' + id }"
+            ></a>
+          </td>
+          <td>
+            <div data-bind="text: artist"></div>
+          </td>
+          <td>
+            <div data-bind="text: year"></div>
+          </td>
+          <td>
+            <div
+              data-bind="visible: best_of_compilation"
+              class="icon-check"
+            ></div>
+          </td>
+        </tr>
+        <!-- /ko -->
+      </tbody>
+    </table>
+  </div>
+  <div class="filterContainer">
+    <input
+      data-bind="textInput: year"
+      id="album_year"
+      placeholder="{{ gettext('album.filter by year') }}"
+      type="number"
+      maxlength="4"
+    />
+  </div>
+</div>
+
+<script type="text/javascript">
+
+  function AlbumsViewModel() {
+      const self = this;
+      self.albums = ko.observableArray({{ albums|safe }});
+      self.year = ko.observable('');
+      self.year.subscribe(function(newVal) {
+          self.filterChanged();
+      });
+
+      self.filterChanged = function() {
+          axios.get('{{ url_for('led.data') }}?year='  + self.year()
+              ).then(function (response) {
+                  const data = response.data
+                  self.albums(data);
+              })
+              .catch(function (error) {
+                  if (!error.response || error.response.status !== 0) {
+                      alert('{{ gettext('common.retrieving data failed') }}');
+                  }
+              });
+      };
+  }
+
+  const albumsViewModel = new AlbumsViewModel();
+
+  document.addEventListener("DOMContentLoaded", function(event) {
+      ko.applyBindings(albumsViewModel);
+  });
+</script>
+{% endblock %}
