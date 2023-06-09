@@ -1,14 +1,16 @@
 import RPi.GPIO as GPIO
 from time import time
+import json
 from datetime import datetime
 from app.models.db import get_db, t_led, t_report_definition
+import requests
 
 #from db import Databse
 
 PIN = 9
 OUT_PIN = 12
 LED_ON =False
-test_db = Databse()
+
 def setup():
     GPIO.setmode(GPIO.BCM)  # Numbers GPIOs by physical location
     GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -61,15 +63,25 @@ def destroy():
     GPIO.cleanup()
 
 def insert_data(state):
-    db_engine = get_db()
+    url = "http://0.0.0.0:5000/led/save"
+    headers = {'Content-type': 'application/json', 'Accept': 'text/plain'}
+    data = dict()
+    req_data = dict()
+    req_data['id'] = ''
+    req_data['date'] = ''
+    req_data['state'] = state
+    data['led'] = req_data
+    requests.post(url,headers=headers, data=json.dumps(data))
+    '''
     with db_engine.begin() as connection:
         values = dict()
         values['state'] = state
-        values['date'] = datetime.datetime.now()
+        values['date'] = datetime.now()
         connection.execute(
             t_led.insert()
             .values(**values)
         )
+        '''
 
 if __name__ == "__main__":
     setup()
@@ -90,7 +102,6 @@ if __name__ == "__main__":
                         #now_date = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
                         #test_db.insert(now_date,'OFF')
                         insert_data('OFF')
-
                         
                     else:
                         print('LED ON')

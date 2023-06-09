@@ -1,13 +1,13 @@
 __version__ = "1.0.0"
 
 from flask import Flask, redirect, url_for
+from flask_socketio import SocketIO,send,emit
 from flask_babel import Babel
 from .commands import db_cli
 from app.models import db
 from app.models.errorhandlers import register_handlers
 import logging
 import os
-
 
 def configure_logger():
     from logging.config import dictConfig
@@ -52,14 +52,14 @@ def cleanup(e=None):
 def get_locale():
     return 'en_GB'
 
-
 def create_app():
     # configure logger before logger is accessed
     configure_logger()
 
     app = Flask(__name__, instance_relative_config=True)
     Babel(app, locale_selector=get_locale)
-
+    app.secret_key = "mysecret"
+    socketio = SocketIO(app, async_mode='eventlet')
     # load config from instance/config.py
     app.config.from_pyfile('config.py')
 
@@ -88,5 +88,5 @@ def create_app():
     def index():
         return redirect(url_for('home.index'))
 
-    return app
+    return socketio, app
 

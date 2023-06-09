@@ -1,16 +1,15 @@
+from threading import Thread
 import RPi.GPIO as GPIO
 from time import time
 from datetime import datetime
-from db import Databse
 
 PIN = 9
 OUT_PIN = 12
-test_db = Databse()
 
-
-class IrModule:
+class IrModule(Thread):
 
     def __init__(self):
+        Thread.__init__(self)
         self.LED_ON =False
         GPIO.setmode(GPIO.BCM)  # Numbers GPIOs by physical location
         GPIO.setup(PIN, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -64,7 +63,7 @@ class IrModule:
     def get_ir_status(self):
         return self.LED_ON
     
-    def start(self):
+    def run(self):
         try:
             print("Starting IR Listener")
             while True:

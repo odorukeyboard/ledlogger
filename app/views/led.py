@@ -135,6 +135,7 @@ def save():
     """Saves a music led in the db."""
     db_engine = get_db()
     json_data = request.get_json(silent=True)
+    print(json_data)
     if json_data is None:
         abort(400, 'invalid request values')
     led = json_data.get('led')
